@@ -1,0 +1,15 @@
+#
+# greeting.sql creates greeting.say_hello(), which calls GREETING()
+#
+INSTALL COMPONENT 'file://component_greeting'
+  SET GLOBAL greeting.config_file = 'MYSQLTEST_VARDIR/tmp/greeting.conf';
+# Running the script twice is harmless
+SELECT ROUTINE_SCHEMA, ROUTINE_NAME, SECURITY_TYPE, ROUTINE_COMMENT
+FROM information_schema.ROUTINES WHERE ROUTINE_SCHEMA = 'greeting';
+ROUTINE_SCHEMA	ROUTINE_NAME	SECURITY_TYPE	ROUTINE_COMMENT
+greeting	say_hello	INVOKER	Shows the message set in greeting.conf
+CALL greeting.say_hello();
+greeting
+Hello from a stored procedure!
+DROP DATABASE greeting;
+UNINSTALL COMPONENT 'file://component_greeting';

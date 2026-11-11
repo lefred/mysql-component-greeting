@@ -1,0 +1,68 @@
+--echo #
+--echo # GREETING() returns the message set in greeting.config_file
+--echo #
+
+let $conf= $MYSQLTEST_VARDIR/tmp/greeting.conf;
+
+--replace_result $MYSQLTEST_VARDIR MYSQLTEST_VARDIR
+eval INSTALL COMPONENT 'file://component_greeting'
+  SET GLOBAL greeting.config_file = '$conf';
+
+--replace_result $MYSQLTEST_VARDIR MYSQLTEST_VARDIR
+SELECT @@greeting.config_file;
+
+--error ER_INCORRECT_GLOBAL_LOCAL_VAR
+SET GLOBAL greeting.config_file = '/tmp/other.conf';
+
+--write_file $conf
+# A comment, then a blank line
+
+other = ignored
+message = Hello, MySQL!
+EOF
+SELECT GREETING();
+
+--echo # The file is read on every call
+--remove_file $conf
+--write_file $conf
+message = "  quoted, with spaces  "
+EOF
+SELECT CONCAT('[', GREETING(), ']');
+
+--echo # The result is utf8mb4
+--remove_file $conf
+--write_file $conf
+message = Bonjour, café 😀
+EOF
+SELECT GREETING(), CHAR_LENGTH(GREETING()), CHARSET(GREETING());
+
+--echo # No message: NULL and a warning
+--remove_file $conf
+--write_file $conf
+# nothing here
+EOF
+--replace_result $MYSQLTEST_VARDIR MYSQLTEST_VARDIR
+SELECT GREETING();
+
+--echo # A line that is not key = value
+--remove_file $conf
+--write_file $conf
+message
+EOF
+--replace_result $MYSQLTEST_VARDIR MYSQLTEST_VARDIR
+SELECT GREETING();
+
+--echo # No file
+--remove_file $conf
+--replace_result $MYSQLTEST_VARDIR MYSQLTEST_VARDIR
+SELECT GREETING();
+
+--error ER_CANT_INITIALIZE_UDF
+SELECT GREETING('x');
+
+--error ER_GENERATED_COLUMN_NAMED_FUNCTION_IS_NOT_ALLOWED
+CREATE TABLE t1 (a INT, b VARCHAR(100) AS (GREETING()) STORED);
+
+UNINSTALL COMPONENT 'file://component_greeting';
+SELECT COUNT(*) FROM performance_schema.global_variables
+  WHERE VARIABLE_NAME LIKE 'greeting.%';

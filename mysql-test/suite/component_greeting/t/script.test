@@ -1,0 +1,41 @@
+--echo #
+--echo # greeting.sql creates greeting.say_hello(), which calls GREETING()
+--echo #
+
+# In the component's sources, at components/greeting in the server tree, or
+# where a tarball install put it.
+--perl
+my $base = $ENV{MYSQL_BASEDIR};
+my ($found) = grep { -f $_ } ("$base/components/greeting/greeting.sql",
+                              "$base/share/greeting/greeting.sql");
+open(my $inc, '>', "$ENV{MYSQLTEST_VARDIR}/tmp/greeting_sql.inc") or die;
+print $inc "let \$greeting_sql= " . ($found // '') . ";\n";
+close($inc);
+EOF
+--source $MYSQLTEST_VARDIR/tmp/greeting_sql.inc
+--remove_file $MYSQLTEST_VARDIR/tmp/greeting_sql.inc
+if (!$greeting_sql)
+{
+  --skip greeting.sql not found
+}
+
+let $conf= $MYSQLTEST_VARDIR/tmp/greeting.conf;
+--write_file $conf
+message = Hello from a stored procedure!
+EOF
+
+--replace_result $MYSQLTEST_VARDIR MYSQLTEST_VARDIR
+eval INSTALL COMPONENT 'file://component_greeting'
+  SET GLOBAL greeting.config_file = '$conf';
+
+--exec $MYSQL < $greeting_sql
+--echo # Running the script twice is harmless
+--exec $MYSQL < $greeting_sql
+
+SELECT ROUTINE_SCHEMA, ROUTINE_NAME, SECURITY_TYPE, ROUTINE_COMMENT
+  FROM information_schema.ROUTINES WHERE ROUTINE_SCHEMA = 'greeting';
+CALL greeting.say_hello();
+
+DROP DATABASE greeting;
+UNINSTALL COMPONENT 'file://component_greeting';
+--remove_file $conf

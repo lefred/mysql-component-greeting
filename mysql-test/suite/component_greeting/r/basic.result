@@ -1,0 +1,48 @@
+#
+# GREETING() returns the message set in greeting.config_file
+#
+INSTALL COMPONENT 'file://component_greeting'
+  SET GLOBAL greeting.config_file = 'MYSQLTEST_VARDIR/tmp/greeting.conf';
+SELECT @@greeting.config_file;
+@@greeting.config_file
+MYSQLTEST_VARDIR/tmp/greeting.conf
+SET GLOBAL greeting.config_file = '/tmp/other.conf';
+ERROR HY000: Variable 'greeting.config_file' is a read only variable
+SELECT GREETING();
+GREETING()
+Hello, MySQL!
+# The file is read on every call
+SELECT CONCAT('[', GREETING(), ']');
+CONCAT('[', GREETING(), ']')
+[  quoted, with spaces  ]
+# The result is utf8mb4
+SELECT GREETING(), CHAR_LENGTH(GREETING()), CHARSET(GREETING());
+GREETING()	CHAR_LENGTH(GREETING())	CHARSET(GREETING())
+Bonjour, café 😀	15	utf8mb4
+# No message: NULL and a warning
+SELECT GREETING();
+GREETING()
+NULL
+Warnings:
+Warning	3200	greeting UDF failed; MYSQLTEST_VARDIR/tmp/greeting.conf sets no message
+# A line that is not key = value
+SELECT GREETING();
+GREETING()
+NULL
+Warnings:
+Warning	3200	greeting UDF failed; MYSQLTEST_VARDIR/tmp/greeting.conf:1: expected key = value
+# No file
+SELECT GREETING();
+GREETING()
+NULL
+Warnings:
+Warning	3200	greeting UDF failed; cannot open MYSQLTEST_VARDIR/tmp/greeting.conf: No such file or directory
+SELECT GREETING('x');
+ERROR HY000: Can't initialize function 'greeting'; GREETING() takes no arguments
+CREATE TABLE t1 (a INT, b VARCHAR(100) AS (GREETING()) STORED);
+ERROR HY000: Expression of generated column 'b' contains a disallowed function: greeting.
+UNINSTALL COMPONENT 'file://component_greeting';
+SELECT COUNT(*) FROM performance_schema.global_variables
+WHERE VARIABLE_NAME LIKE 'greeting.%';
+COUNT(*)
+0
