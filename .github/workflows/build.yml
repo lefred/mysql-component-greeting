@@ -17,16 +17,15 @@ jobs:
   build:
     uses: lefred/mysql-component-ci/.github/workflows/build-component.yml@main
     with:
-      component_name: marina
-      component_directory: marina
-      build_target: component_marina
-      component_library: component_marina.so
+      component_name: greeting
+      component_directory: greeting
+      build_target: component_greeting
+      component_library: component_greeting.so
 
       sdk_image: quay.io/lefred14/mysql-component-build
       mysql_versions: |
-          9.7.2 
+          9.7.2
           26.7.0
-          26.10.0
 
       run_tests: false
 
