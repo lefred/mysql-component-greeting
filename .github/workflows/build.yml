@@ -25,6 +25,7 @@ jobs:
       sdk_image: quay.io/lefred14/mysql-component-build
       mysql_versions: |
           9.7.2
+          9.7.4
           26.7.0
           26.10.0
 
