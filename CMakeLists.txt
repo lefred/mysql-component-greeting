@@ -39,11 +39,13 @@ TARGET_COMPILE_DEFINITIONS(component_greeting
 # component looks for greeting.conf by default, and share/.../greeting/.
 IF(INSTALL_LAYOUT MATCHES "STANDALONE")
   SET(GREETING_CONF_DIR "etc/mysql/greeting")
+  SET(GREETING_SHARE_DIR "share/mysql/greeting")
 ELSE()
   SET(GREETING_CONF_DIR "/etc/mysql/greeting")
+  SET(GREETING_SHARE_DIR "${INSTALL_MYSQLSHAREDIR}/mysql/greeting")
 ENDIF()
 
 INSTALL(FILES greeting.conf
   DESTINATION ${GREETING_CONF_DIR} COMPONENT Server)
 INSTALL(FILES greeting.sql
-  DESTINATION ${INSTALL_MYSQLSHAREDIR}/greeting COMPONENT Server)
+  DESTINATION ${GREETING_SHARE_DIR} COMPONENT Server)
