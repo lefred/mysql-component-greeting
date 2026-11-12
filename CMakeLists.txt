@@ -16,7 +16,11 @@
 # Built in a MySQL server source tree, as components/greeting: the server
 # adds every components/*/CMakeLists.txt to its build.
 
-SET(GREETING_VERSION "1.0.2")
+SET(COMPONENT_NAME "greeting")
+SET(COMPONENT_VERSION "1.0.2")
+SET(COMPONENT_AUTHOR "lefred")
+SET(COMPONENT_DESCRIPTION "Sample component whose GREETING() function return the message set in its config file")
+SET(COMPONENT_LICENSE "PLUGIN_LICENCE_GPL")
 
 MYSQL_ADD_COMPONENT(greeting
   greeting.cc
@@ -24,7 +28,11 @@ MYSQL_ADD_COMPONENT(greeting
   )
 
 TARGET_COMPILE_DEFINITIONS(component_greeting
-  PRIVATE GREETING_VERSION="${GREETING_VERSION}")
+  PRIVATE COMPONENT_VERSION="${COMPONENT_VERSION}"
+  PRIVATE COMPONENT_AUTHOR="${COMPONENT_AUTHOR}"
+  PRIVATE COMPONENT_DESCRIPTION="${COMPONENT_DESCRIPTION}"
+  PRIVATE COMPONENT_LICENSE="${COMPONENT_LICENSE}"
+)
 
 # <etc>/mysql/greeting/ (etc in a tarball, /etc for RPM and DEB), where the
 # component looks for greeting.conf by default, and share/.../greeting/.

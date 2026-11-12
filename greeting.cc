@@ -55,7 +55,7 @@ REQUIRES_SERVICE_PLACEHOLDER(mysql_system_variable_reader);
 
 namespace {
 
-const char *COMPONENT_NAME = "greeting";
+//const char *COMPONENT_NAME = "greeting";
 const char *UDF_NAME = "greeting";
 const size_t MAX_CONFIG_BYTES = 64 * 1024;
 
@@ -250,8 +250,9 @@ REQUIRES_SERVICE(udf_registration), REQUIRES_SERVICE(mysql_udf_metadata),
     REQUIRES_SERVICE(mysql_system_variable_reader), END_COMPONENT_REQUIRES();
 
 BEGIN_COMPONENT_METADATA(greeting)
-METADATA("mysql.author", "lefred"), METADATA("mysql.license", "GPL"),
-    METADATA("greeting.version", GREETING_VERSION),
+METADATA("mysql.author", COMPONENT_AUTHOR), METADATA("mysql.license", COMPONENT_LICENSE),
+    METADATA(COMPONENT_NAME ".description", COMPONENT_DESCRIPTION),
+    METADATA(COMPONENT_NAME ".version", COMPONENT_VERSION),
     END_COMPONENT_METADATA();
 
 DECLARE_COMPONENT(greeting, "greeting")
